@@ -13,6 +13,8 @@ services:
       - "5435:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data/pgdata
+    networks:
+      - default
 
   redis:
     image: redis:latest
@@ -39,4 +41,22 @@ services:
       timeout: 10s
       retries: 5
     restart: unless-stopped
+    networks:
+      - default
 
+  backend:
+    build: .
+    container_name: vsm-backend
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
